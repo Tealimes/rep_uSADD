@@ -1,4 +1,3 @@
-`include "sobolrng.v"
 `include "parallelcnt.v"
 
 module uSADD_uni #(
@@ -8,57 +7,20 @@ module uSADD_uni #(
     input wire iClk,
     input wire iRstN, 
     input wire A,
-    input wire [BITWIDTH - 1: 0] B,
-    input wire loadB,
-    input wire iClr,
-    output reg oB,
-    output reg [BINPUT-1:0] out
+    input wire B,
+    output reg out
 );
 
     reg [BINPUT-1:0] tempSum;
-    reg acc;
-    reg accBuff;
-    reg bitB; //value of B's current cycle
-
-    //used for bitstream generation
-    reg [BITWIDTH-1:0] iB_buff; //to store a value in block so reg
-    wire [BITWIDTH-1:0] sobolseq;
-
-    always@(posedge iClk or negedge iRstN) begin
-        if(~iRstN) begin
-            iB_buff <= 0;
-        end else begin
-            if(loadB) begin
-                iB_buff <= B;
-            end else begin
-                iB_buff <= iB_buff;
-            end
-            
-        end
-    end
-
-    sobolrng #(
-        .BITWIDTH(BITWIDTH)
-    ) u_sobolrng (
-        .iClk(iClk),
-        .iRstN(iRstN),
-        .iEn(A), 
-        .iClr(iClr),
-        .sobolseq(sobolseq)
-    );
-
-    always@(*) begin
-        oB <= (iB_buff > sobolseq);
-    end
-
-    assign bitB = (iB_buff > sobolseq);
+    reg [2:0] accBuff;
+    reg [2:0] cnt;
 
     //Used to calculate the output
     parallelcnt u_parallelcnt (
         .iClk(iClk),
         .iRstN(iRstN),
         .A(A),
-        .B(bitB),
+        .B(B),
         .out(tempSum)
     );
 
@@ -68,7 +30,7 @@ module uSADD_uni #(
         if(~iRstN) begin
             accBuff <= 0;
         end else begin
-            if(accBuff > BINPUT) begin
+            if((accBuff + tempSum) >= BINPUT) begin
                 accBuff <= 0;
             end else begin
                 accBuff <= accBuff + tempSum;
@@ -76,16 +38,7 @@ module uSADD_uni #(
         end
     end
 
-    always@(posedge iClk or negedge iRstN) begin
-        if(accBuff > BINPUT) begin
-            acc <= 1;
-        end else begin 
-            acc <= 0;
-        end
-    end
+    assign out = ((accBuff + tempSum) >= BINPUT) ? 1'b1 : 1'b0;
 
-    always@(*) begin
-        out <= acc;
-    end
 
 endmodule
