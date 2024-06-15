@@ -15,24 +15,51 @@ module uSADD_uni_tb();
     logic iClk;
     logic iRstN;
     logic A;
-    logic [BITWIDTH-1:0] B;
+    logic B;
     logic loadB;
     logic iClr;
-    logic oB;
-    reg [1:0] out;
+    reg out;
 
     //don't touch, used for bitstream generation inside tb
-    logic [BITWIDTH-1:0] sobolseq_tb;
+    logic [BITWIDTH-1:0] sobolseq_tb1;
+    logic [BITWIDTH-1:0] sobolseq_tb2;
     logic [BITWIDTH-1:0] rand_a;
+    logic [BITWIDTH-1:0] rand_b;
 
+    //generates the two stochastic bitstreams
     sobolrng #(
         .BITWIDTH(BITWIDTH)
-    ) u_sobolrng_tb (
+    ) u_sobolrng_tb1 (
         .iClk(iClk),
         .iRstN(iRstN),
         .iEn(1),
         .iClr(iClr),
-        .sobolseq(sobolseq_tb)
+        .sobolseq(sobolseq_tb1)
+    );
+
+    reg [BITWIDTH-1:0] iB_buff;
+
+    always@(posedge iClk or negedge iRstN) begin
+        if(~iRstN) begin
+            iB_buff <= 0;
+        end else begin
+            if(loadB) begin
+                iB_buff <= rand_b;
+            end else begin
+                iB_buff <= iB_buff;
+            end
+            
+        end
+    end
+
+    sobolrng #(
+        .BITWIDTH(BITWIDTH)
+    ) u_sobolrng_tb2 (
+        .iClk(iClk),
+        .iRstN(iRstN),
+        .iEn(A),
+        .iClr(iClr),
+        .sobolseq(sobolseq_tb2)
     );
 
     uSADD_uni #(
@@ -42,9 +69,6 @@ module uSADD_uni_tb();
         .iRstN(iRstN),
         .A(A),
         .B(B),
-        .loadB(loadB),
-        .iClr(iClr),
-        .oB(oB),
         .out(out)
     );
 
@@ -57,6 +81,7 @@ module uSADD_uni_tb();
         B = 0;
         A = 0;
         rand_a = 0;
+        rand_b = 0;
         iRstN = 0;
         iClr = 0;
         loadB = 1;
@@ -66,12 +91,13 @@ module uSADD_uni_tb();
 
         //specified cycles of unary bitstreams
         repeat(`TESTAMOUNT) begin
-            B = $urandom_range(255);
+            rand_b = $urandom_range(255);
             rand_a = $urandom_range(255);
 
             repeat(256) begin
                 #10;
-                A = (rand_a > sobolseq_tb);
+                A = (rand_a > sobolseq_tb1);
+                B = (iB_buff > sobolseq_tb2);
             end
         end
 
