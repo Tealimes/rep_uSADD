@@ -1,13 +1,13 @@
 module parallelcnt (
     input wire iClk,
     input wire iRstN,
-    input wire A,
-    input wire B,
-    output reg [1:0] out
+    input wire iA,
+    input wire iB,
+    output reg [1:0] oC
 );
 
     always@(posedge iClk or negedge iRstN) begin
-        out <= A + B;
+        oC <= iA + iB;
     end 
 
 endmodule
