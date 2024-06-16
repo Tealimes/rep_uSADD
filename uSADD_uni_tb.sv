@@ -5,20 +5,44 @@
 
 //used to check errors
 class errorCheck;
-    function new();
+    real uResult;
+    real eResult;
+    real calcNum;
+    real cntA;
+    real cntB;
+    real denom;
+    real sum;
+    real iMSE;
+    real iRMSE;
+
+    function new(real As, Bs, denom, calcNum);
+        cntA = As;
+        cntB = Bs;
+        denom = denom;
+        calcNum = calcNum;
+
+
         
     endfunction //new()
+
+    function mse();
+
+    endfunction
+
+    function rmse();
+
+    endfunction
 endclass 
 
 module uSADD_uni_tb();
     parameter BITWIDTH = 8;
     logic iClk;
     logic iRstN;
-    logic A;
-    logic B;
+    logic iA;
+    logic iB;
     logic loadB;
     logic iClr;
-    reg out;
+    reg oC;
 
     //don't touch, used for bitstream generation inside tb
     logic [BITWIDTH-1:0] sobolseq_tb1;
@@ -57,7 +81,7 @@ module uSADD_uni_tb();
     ) u_sobolrng_tb2 (
         .iClk(iClk),
         .iRstN(iRstN),
-        .iEn(A),
+        .iEn(1),
         .iClr(iClr),
         .sobolseq(sobolseq_tb2)
     );
@@ -67,9 +91,9 @@ module uSADD_uni_tb();
     ) u_uSADD_uni (
         .iClk(iClk),
         .iRstN(iRstN),
-        .A(A),
-        .B(B),
-        .out(out)
+        .iA(iA),
+        .iB(iB),
+        .oC(oC)
     );
 
     always #5 iClk = ~iClk;
@@ -78,8 +102,8 @@ module uSADD_uni_tb();
         $dumpfile("uSADD_uni_tb.vcd"); $dumpvars;
 
         iClk = 1;
-        B = 0;
-        A = 0;
+        iB = 0;
+        iA = 0;
         rand_a = 0;
         rand_b = 0;
         iRstN = 0;
@@ -96,13 +120,15 @@ module uSADD_uni_tb();
 
             repeat(256) begin
                 #10;
-                A = (rand_a > sobolseq_tb1);
-                B = (iB_buff > sobolseq_tb2);
+                iA = (rand_a > sobolseq_tb1);
+                iB = (iB_buff > sobolseq_tb2);
             end
         end
 
             
         iClr = 1;
+        iA = 0;
+        iB = 0;
         #400;
 
         $finish;
