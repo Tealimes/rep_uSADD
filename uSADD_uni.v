@@ -6,39 +6,34 @@ module uSADD_uni #(
 ) (
     input wire iClk,
     input wire iRstN, 
-    input wire A,
-    input wire B,
-    output reg out
+    input wire iA,
+    input wire iB,
+    output reg oC
 );
 
-    reg [BINPUT-1:0] tempSum;
-    reg [2:0] accBuff;
-    reg [2:0] cnt;
+    reg [BINPUT-1:0] PCout;
+    reg [1:0] acc;
 
     //Used to calculate the output
     parallelcnt u_parallelcnt (
         .iClk(iClk),
         .iRstN(iRstN),
-        .A(A),
-        .B(B),
-        .out(tempSum)
+        .iA(iA),
+        .iB(iB),
+        .oC(PCout)
     );
 
     //determines if accumulation greater than BINPUT
     //output 1 if accbuff > BINPUT and then resets it back to 0
     always@(posedge iClk or negedge iRstN) begin
         if(~iRstN) begin
-            accBuff <= 0;
+            acc <= 0;
         end else begin
-            if((accBuff + tempSum) >= BINPUT) begin
-                accBuff <= 0;
-            end else begin
-                accBuff <= accBuff + tempSum;
-            end
+            acc <= acc[0] + PCout;
         end
     end
 
-    assign out = ((accBuff + tempSum) >= BINPUT) ? 1'b1 : 1'b0;
+    assign oC = acc[1];
 
 
 endmodule
