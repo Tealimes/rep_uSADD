@@ -23,8 +23,7 @@ module uSADD_uni #(
         .oC(PCout)
     );
 
-    //determines if accumulation greater than BINPUT
-    //output 1 if accbuff > BINPUT and then resets it back to 0
+    //constantly accumulates it's own LSB with the PCout
     always@(posedge iClk or negedge iRstN) begin
         if(~iRstN) begin
             acc <= 0;
@@ -33,6 +32,7 @@ module uSADD_uni #(
         end
     end
 
+    //outputs the MSB of the accumulator 
     assign oC = acc[1];
 
 
