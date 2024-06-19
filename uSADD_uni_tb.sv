@@ -1,3 +1,6 @@
+//By Alexander Peacock
+//email: alexpeacock56ten@gmail.com
+
 `include "uSADD_uni.v"
 `include "sobolrng.v"
 `define TESTAMOUNT 10
@@ -59,7 +62,6 @@ module uSADD_uni_tb();
     logic iRstN;
     logic iA;
     logic iB;
-    logic loadB;
     logic iClr;
     reg oC;
 
@@ -121,7 +123,6 @@ module uSADD_uni_tb();
         end
     end
 
-
     //used for bitstream generation
     logic [BITWIDTH-1:0] sobolseq_tbA;
     logic [BITWIDTH-1:0] sobolseq_tbB;
@@ -138,21 +139,6 @@ module uSADD_uni_tb();
         .iClr(iClr),
         .sobolseq(sobolseq_tbA)
     );
-
-    reg [BITWIDTH-1:0] iB_buff;
-
-    always@(posedge iClk or negedge iRstN) begin
-        if(~iRstN) begin
-            iB_buff <= 0;
-        end else begin
-            if(loadB) begin
-                iB_buff <= rand_b;
-            end else begin
-                iB_buff <= iB_buff;
-            end
-            
-        end
-    end
 
     sobolrng #(
         .BITWIDTH(BITWIDTH)
@@ -186,7 +172,6 @@ module uSADD_uni_tb();
         rand_b = 0;
         iRstN = 0;
         iClr = 0;
-        loadB = 1;
         error = new;
 
         #10;
@@ -204,7 +189,7 @@ module uSADD_uni_tb();
             repeat(256) begin
                 #10;
                 iA = (rand_a > sobolseq_tbA);
-                iB = (iB_buff > sobolseq_tbB);
+                iB = (rand_b > sobolseq_tbB);
             end
 
             error.addi(cntA, cntB, denom, num);
