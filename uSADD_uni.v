@@ -1,3 +1,6 @@
+//By Alexander Peacock
+//email: alexpeacock56ten@gmail.com
+
 `include "parallelcnt.v"
 
 module uSADD_uni #(
@@ -11,7 +14,7 @@ module uSADD_uni #(
     output reg oC
 );
 
-    reg [BINPUT-1:0] PCout;
+    wire [BINPUT-1:0] PCout;
     reg [1:0] acc;
 
     //Used to calculate the output
