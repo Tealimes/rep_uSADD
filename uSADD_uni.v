@@ -4,7 +4,6 @@
 `include "parallelcnt.v"
 
 module uSADD_uni #(
-    parameter BITWIDTH = 8,
     parameter BINPUT = 2
 ) (
     input wire iClk,
