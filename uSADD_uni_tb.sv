@@ -75,6 +75,7 @@ endclass
 
 module uSADD_uni_tb();
     parameter BITWIDTH = 8;
+    parameter BINPUT = 2;
     logic iClk;
     logic iRstN;
     logic iA;
@@ -142,7 +143,7 @@ module uSADD_uni_tb();
     );
 
     uSADD_uni #(
-        .BITWIDTH(BITWIDTH)
+        .BINPUT(BINPUT)
     ) u_uSADD_uni (
         .iClk(iClk),
         .iRstN(iRstN),
@@ -167,6 +168,7 @@ module uSADD_uni_tb();
 
         #10;
         iRstN = 1;
+
 
         //specified cycles of unary bitstreams
         repeat(`TESTAMOUNT) begin
