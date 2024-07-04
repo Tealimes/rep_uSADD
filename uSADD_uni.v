@@ -1,9 +1,11 @@
 //By Alexander Peacock, undergrad at UCF ECE
 //email: alexpeacock56ten@gmail.com
+`ifndef uSADD
+`define uSADD
 
 `include "parallelcnt.v"
 
-module uSADD_uni #(
+module uSADD #(
     parameter BINPUT = 2
 ) (
     input wire iClk,
@@ -37,5 +39,6 @@ module uSADD_uni #(
     //outputs the MSB of the accumulator 
     assign oC = acc[1];
 
-
 endmodule
+
+`endif
